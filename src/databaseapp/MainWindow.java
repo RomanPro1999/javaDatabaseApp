@@ -1,0 +1,630 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package databaseapp;
+
+import java.awt.Image;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author My_PC
+ */
+public class MainWindow extends javax.swing.JFrame {
+
+    /**
+     * Creates new form MainWindow
+     */
+    public MainWindow() {
+        initComponents();
+        Show_Products_in_JTable();
+    }
+    String imagePath=null;
+    int pos = 0;
+    
+    public Connection getConnection()
+    {
+       Connection con = null;
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://localhost/shop","root","1234");
+            return con;
+        } catch (SQLException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, ex);
+            return null;
+        }
+        
+    }
+    public boolean checkInputs(){
+        if(idTextField.getText() == null
+           ||nameTextField.getText() == null
+           ||priceTextField.getText()==null
+           ||addDateField==null){
+            return false;
+        }
+        else{
+            try{
+                Float.parseFloat((priceTextField.getText()));
+                return true;
+            }
+            catch(Exception ex){
+                return false;
+            }
+        }
+    }
+    
+    public ImageIcon ResizeImage(String imagePath,byte[] pic){
+        ImageIcon myImage = null;
+        if(imagePath !=null){
+            myImage =new ImageIcon(imagePath);
+        }
+        else{
+            myImage = new ImageIcon(pic);
+        }
+        Image img = myImage.getImage();
+        Image img2 = img.getScaledInstance( imageLabel.getWidth(), imageLabel.getHeight(), Image.SCALE_SMOOTH);
+        ImageIcon image = new ImageIcon(img2);
+        return image;
+    }
+    
+    public ArrayList<Product> getProductList(){
+        ArrayList<Product> productList = new ArrayList<Product>();
+        Connection con = getConnection();
+        String query = "select * from products";
+        Statement statement;
+        ResultSet results;
+        try {
+            statement = con.createStatement();
+            results = statement.executeQuery(query);
+            Product product;
+            while(results.next()){
+                product = new Product(results.getInt("id"),results.getString("name"),
+                        Float.parseFloat(results.getString("price")),results.getString("addDate"),results.getBytes("image"));
+                productList.add(product);
+            }
+            } catch (SQLException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return productList;
+    }
+    
+    public void Show_Products_in_JTable(){
+        ArrayList<Product> list = getProductList();
+        DefaultTableModel model = (DefaultTableModel)JTableProducts.getModel();
+        Object [] row = new Object[4];
+        for(int i=0; i<list.size();i++){
+            row[0] = list.get(i).getId();
+            row[1] = list.get(i).getName();
+            row[2] = list.get(i).getPrice();
+            row[3] = list.get(i).getAddDate();
+            
+            model.addRow(row);
+        }
+    }
+    
+    public void ShowItem(int index){
+        idTextField.setText(Integer.toString((getProductList().get(index).getId())));
+        nameTextField.setText(getProductList().get(index).getName());
+        priceTextField.setText(Float.toString((float) getProductList().get(index).getPrice()));
+        try {
+            Date addDate = null;
+            addDate = new SimpleDateFormat("yyyy-MM-dd").parse((String)getProductList().get(index).getAddDate());
+            addDateField.setDate(addDate);
+        } catch (ParseException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        imageLabel.setIcon(ResizeImage(null, getProductList().get(index).getPicture()));
+    }
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        idTextField = new javax.swing.JTextField();
+        nameTextField = new javax.swing.JTextField();
+        priceTextField = new javax.swing.JTextField();
+        addDateField = new com.toedter.calendar.JDateChooser();
+        imageLabel = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        JTableProducts = new javax.swing.JTable();
+        buttonChooseImage = new javax.swing.JButton();
+        buttonAdd = new javax.swing.JButton();
+        butttonEdit = new javax.swing.JButton();
+        buttonDelete = new javax.swing.JButton();
+        jButtonFirst = new javax.swing.JButton();
+        jButtonNext = new javax.swing.JButton();
+        jButtonPrev = new javax.swing.JButton();
+        jButtonLast = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(204, 255, 204));
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel1.setText("Id:");
+
+        jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel2.setText("Product name:");
+
+        jLabel3.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel3.setText("Price:");
+
+        jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel4.setText("Add date:");
+
+        jLabel5.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel5.setText("Image:");
+
+        idTextField.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        idTextField.setEnabled(false);
+        idTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                idTextFieldActionPerformed(evt);
+            }
+        });
+
+        nameTextField.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        nameTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameTextFieldActionPerformed(evt);
+            }
+        });
+
+        priceTextField.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        priceTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                priceTextFieldActionPerformed(evt);
+            }
+        });
+
+        addDateField.setDateFormatString("yyyy-MM-dd");
+        addDateField.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        imageLabel.setOpaque(true);
+
+        JTableProducts.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Id", "Name", "Price", "Add date"
+            }
+        ));
+        JTableProducts.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JTableProductsMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(JTableProducts);
+
+        buttonChooseImage.setLabel("Choose image");
+        buttonChooseImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonChooseImageActionPerformed(evt);
+            }
+        });
+
+        buttonAdd.setText("Add");
+        buttonAdd.setToolTipText("");
+        buttonAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonAddActionPerformed(evt);
+            }
+        });
+
+        butttonEdit.setText("Update");
+        butttonEdit.setToolTipText("");
+        butttonEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                butttonEditActionPerformed(evt);
+            }
+        });
+
+        buttonDelete.setText("Delete");
+        buttonDelete.setToolTipText("");
+        buttonDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonDeleteActionPerformed(evt);
+            }
+        });
+
+        jButtonFirst.setText("First");
+        jButtonFirst.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFirstActionPerformed(evt);
+            }
+        });
+
+        jButtonNext.setText("Next");
+        jButtonNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNextActionPerformed(evt);
+            }
+        });
+
+        jButtonPrev.setText("Prev");
+        jButtonPrev.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPrevActionPerformed(evt);
+            }
+        });
+
+        jButtonLast.setText("Last");
+        jButtonLast.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonLastActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel4))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(priceTextField)
+                            .addComponent(nameTextField)
+                            .addComponent(addDateField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(idTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(71, 71, 71)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(imageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(13, 13, 13)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(buttonChooseImage, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(buttonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(butttonEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(buttonDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 587, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButtonFirst, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonNext, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(14, 14, 14)
+                        .addComponent(jButtonPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonLast, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1)
+                            .addComponent(idTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel2)
+                            .addComponent(nameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(priceTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(37, 37, 37)
+                                .addComponent(jLabel3)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(33, 33, 33)
+                                .addComponent(jLabel4))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(addDateField, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(26, 26, 26)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(imageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(buttonChooseImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButtonFirst, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonNext, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonLast, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonAdd, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE)
+                    .addComponent(butttonEdit, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE)
+                    .addComponent(buttonDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
+                .addGap(12, 12, 12))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void idTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_idTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_idTextFieldActionPerformed
+
+    private void nameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nameTextFieldActionPerformed
+
+    private void priceTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_priceTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_priceTextFieldActionPerformed
+
+    private void buttonChooseImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonChooseImageActionPerformed
+        JFileChooser file = new JFileChooser();
+        file.setCurrentDirectory(new File(System.getProperty("user.home")));
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("*.images", "jpg","png");
+        file.addChoosableFileFilter(filter);
+        int result = file.showSaveDialog(null);
+        if(result == JFileChooser.APPROVE_OPTION){
+            File selectedFile = file.getSelectedFile();
+            imagePath = selectedFile.getAbsolutePath();
+            imageLabel.setIcon(ResizeImage(imagePath, null));
+        }
+        else{
+            System.out.println("No file selected");
+        }
+    }//GEN-LAST:event_buttonChooseImageActionPerformed
+
+    private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAddActionPerformed
+
+        if(checkInputs()&& imagePath!=null){
+            try {
+                Connection con = getConnection();
+                PreparedStatement query = con.prepareStatement("insert into products(name,price,addDate,image)"
+                        + "values(?,?,?,?)");
+                query.setString(1, nameTextField.getText());
+                query.setString(2, priceTextField.getText());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyy-MM-dd");
+                String addDate = dateFormat.format(addDateField.getDate());
+                query.setString(3,addDate);
+                InputStream img = new FileInputStream(new File(imagePath));
+                query.setBlob(4, img);
+                query.executeUpdate();
+                Show_Products_in_JTable();
+                JOptionPane.showMessageDialog(null, "New product has been added");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage());
+            }
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Error input");
+        }
+        
+    }//GEN-LAST:event_buttonAddActionPerformed
+
+    private void butttonEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_butttonEditActionPerformed
+        
+        if(checkInputs() &&idTextField.getText()!= null ){
+            String updateQuery = null;
+            PreparedStatement query = null;
+            Connection con = getConnection();
+            if(imagePath ==null){
+                try {
+                    updateQuery = "update products set name = ?, price = ?"
+                        + ",addDate = ? where id = ?";
+                    query = con.prepareStatement(updateQuery);
+                    query.setString(1, nameTextField.getText());
+                    query.setString(2, priceTextField.getText());
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyy-MM-dd");
+                    String addDate = dateFormat.format(addDateField.getDate());
+                    query.setString(3,addDate);
+                    query.setInt(4, Integer.parseInt(idTextField.getText()));
+                    query.execute();
+                    Show_Products_in_JTable();
+                    JOptionPane.showMessageDialog(null, "Data modified");
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            else{
+                try{
+                    InputStream img = new FileInputStream(new File(imagePath));
+                    updateQuery = "update products set name = ?, price = ?"
+                        + ",addDate = ?, image =? where id = ?";
+                    query = con.prepareStatement(updateQuery);
+                    query.setString(1, nameTextField.getText());
+                    query.setString(2, priceTextField.getText());
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyy-MM-dd");
+                    String addDate = dateFormat.format(addDateField.getDate());
+                    query.setString(3,addDate);
+                    query.setBlob(4,img);
+                    query.setInt(5, Integer.parseInt(idTextField.getText()));
+                    query.execute();
+                    Show_Products_in_JTable();
+                    JOptionPane.showMessageDialog(null, "Data modified");
+                }
+                catch(Exception ex){
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                }
+            }
+            
+        }else{
+            JOptionPane.showMessageDialog(null, "Error input");
+        }
+        
+        
+    }//GEN-LAST:event_butttonEditActionPerformed
+
+    private void buttonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDeleteActionPerformed
+
+    if(!idTextField.getText().equals("")){
+        try {
+            Connection con = getConnection();
+            PreparedStatement query = con.prepareStatement("delete from products where id = ?");
+            int id = Integer.parseInt(idTextField.getText());
+            query.setInt(1, id);
+            query.execute();
+            Show_Products_in_JTable();
+            JOptionPane.showMessageDialog(null, "Product deleted");
+            } 
+        catch (SQLException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    else{
+        JOptionPane.showMessageDialog(null, "Error input");
+    }
+        
+    }//GEN-LAST:event_buttonDeleteActionPerformed
+
+    private void JTableProductsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTableProductsMouseClicked
+
+        int index = JTableProducts.getSelectedRow();
+        ShowItem(index);
+        
+    }//GEN-LAST:event_JTableProductsMouseClicked
+
+    private void jButtonFirstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFirstActionPerformed
+
+        pos = 0;
+        ShowItem(pos);
+        
+    }//GEN-LAST:event_jButtonFirstActionPerformed
+
+    private void jButtonNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNextActionPerformed
+
+        pos++;
+        if(pos>= getProductList().size()){
+            pos = getProductList().size()-1;
+        }
+        ShowItem(pos);
+        
+    }//GEN-LAST:event_jButtonNextActionPerformed
+
+    private void jButtonPrevActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPrevActionPerformed
+        pos--;
+        if(pos<0){
+            pos = 0;
+        }
+        ShowItem(pos);
+    }//GEN-LAST:event_jButtonPrevActionPerformed
+
+    private void jButtonLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLastActionPerformed
+
+        pos = getProductList().size()-1;
+        ShowItem(pos);
+        
+    }//GEN-LAST:event_jButtonLastActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new MainWindow().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable JTableProducts;
+    private com.toedter.calendar.JDateChooser addDateField;
+    private javax.swing.JButton buttonAdd;
+    private javax.swing.JButton buttonChooseImage;
+    private javax.swing.JButton buttonDelete;
+    private javax.swing.JButton butttonEdit;
+    private javax.swing.JTextField idTextField;
+    private javax.swing.JLabel imageLabel;
+    private javax.swing.JButton jButtonFirst;
+    private javax.swing.JButton jButtonLast;
+    private javax.swing.JButton jButtonNext;
+    private javax.swing.JButton jButtonPrev;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField nameTextField;
+    private javax.swing.JTextField priceTextField;
+    // End of variables declaration//GEN-END:variables
+}
